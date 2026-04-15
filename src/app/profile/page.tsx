@@ -1,4 +1,7 @@
+"use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import MobileShell from "@/components/MobileShell";
 
 const stats = [
@@ -33,6 +36,13 @@ const menuItems = [
 ];
 
 export default function ProfilePage() {
+  const router = useRouter();
+  //Handle lgout function to redirect -> login
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
+
   return (
     <MobileShell>
       <header className="flex items-center bg-white border-b border-slate-200 p-4 sticky top-0 z-10">
@@ -160,12 +170,13 @@ export default function ProfilePage() {
             ))}
           </div>
           <div className="pt-4">
-            <Link
-              href="/login"
+            <button
+              onClick={handleLogout}
               className="w-full flex items-center justify-center gap-2 p-4 text-red-600 font-bold hover:bg-red-50 rounded-xl transition-colors"
             >
-              <span className="material-symbols-outlined">logout</span>Sign Out
-            </Link>
+              <span className="material-symbols-outlined">logout</span>
+              Sign Out
+            </button>
           </div>
         </section>
       </main>

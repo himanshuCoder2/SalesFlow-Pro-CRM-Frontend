@@ -1,6 +1,8 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 import MobileShell from '@/components/MobileShell'
 
 function Toggle({ defaultOn = false }: { defaultOn?: boolean }) {
@@ -59,6 +61,13 @@ function Section({ title, items }: { title: string; items: { icon: string; label
 }
 
 export default function SettingsPage() {
+
+  const router = useRouter()
+  //Handle Logout function for redirect -> Login
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
   return (
     <MobileShell>
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-primary/10 px-4 py-4 flex items-center justify-between">
@@ -148,15 +157,15 @@ export default function SettingsPage() {
         <Section title="Data Privacy" items={privacyItems} />
 
         <div className="px-6 mt-8 mb-12">
-          <Link
-            href="/login"
+          <button
+            onClick={handleLogout}
             className="w-full py-3 rounded-xl border border-red-100 text-red-500 font-semibold text-sm bg-red-50 hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
           >
             <span className="material-symbols-outlined text-[20px]">
               logout
             </span>
             Log Out
-          </Link>
+          </button>
           <p className="text-center text-[10px] text-slate-400 mt-4 uppercase tracking-widest">
             SalesFlow Pro CRM v4.2.0
           </p>
