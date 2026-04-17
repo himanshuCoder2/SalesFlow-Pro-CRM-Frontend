@@ -10,19 +10,24 @@ export interface TokenPayload {
 
 export function verifyToken(token: string): TokenPayload | null {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET!) as TokenPayload;
+    return jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as TokenPayload;
   } catch {
     return null;
   }
 }
 
-export function getTokenFromCookies(): string | null {
-  const cookieStore = cookies();
+export async function getTokenFromCookies(): Promise<string | null> {
+  const cookieStore = await cookies();
   return cookieStore.get("token")?.value || null;
 }
 
-export function getCurrentUser(): TokenPayload | null {
-  const token = getTokenFromCookies();
+export async function getCurrentUser(): Promise<TokenPayload | null> {
+  const token = await getTokenFromCookies();
+
   if (!token) return null;
+
   return verifyToken(token);
 }
