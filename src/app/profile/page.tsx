@@ -1,6 +1,8 @@
 "use client";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import MobileShell from "@/components/MobileShell";
 
 const stats = [
@@ -12,33 +14,69 @@ const stats = [
 
 const menuItems = [
   {
+    href: "/profile/edit",
     icon: "person",
     label: "Personal Information",
     desc: "Email, Phone, Location",
   },
   {
+    href: "/settings/change-password",
     icon: "security",
     label: "Security",
     desc: "Password, 2FA, Session management",
   },
   {
+    href: "/settings",
     icon: "notifications",
     label: "Notifications",
     desc: "Email alerts, Push notifications",
   },
   {
+    href: "/settings",
     icon: "track_changes",
     label: "Sales Targets",
     desc: "Adjust monthly & quarterly goals",
   },
-  { icon: "hub", label: "Integrations", desc: "LinkedIn, Calendar, CRM Sync" },
+  {
+    href: "/settings",
+    icon: "hub",
+    label: "Integrations",
+    desc: "LinkedIn, Calendar, CRM Sync",
+  },
 ];
 
 export default function ProfilePage() {
   const router = useRouter();
-  //Handle lgout function to redirect -> login
+
+  const [user, setUser] = useState({
+    name: "",
+    role: "",
+    email: "",
+  });
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        const data = await res.json();
+
+        if (data.user) {
+          setUser({
+            name: data.user.name || "",
+            role: data.user.role || "",
+            email: data.user.email || "",
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load user", error);
+      }
+    };
+
+    loadUser();
+  }, []);
+
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' })
+    await fetch("/api/auth/logout", { method: "POST" });
     router.push("/login");
   };
 
@@ -53,9 +91,11 @@ export default function ProfilePage() {
             arrow_back
           </span>
         </Link>
+
         <h2 className="flex-1 text-center text-lg font-bold tracking-tight">
           Profile
         </h2>
+
         <Link href="/settings">
           <button className="flex size-10 items-center justify-center rounded-full hover:bg-slate-100">
             <span className="material-symbols-outlined text-slate-600">
@@ -66,25 +106,41 @@ export default function ProfilePage() {
       </header>
 
       <main className="flex-1 pb-28 overflow-y-auto no-scrollbar">
-        {/* Hero */}
         <section className="flex flex-col items-center p-6 bg-white border-b border-slate-200">
           <div className="relative mb-4">
             <div className="size-32 rounded-full border-4 border-primary/10 bg-primary/10 flex items-center justify-center text-primary text-4xl font-bold">
-              AR
+              {(user.name || "U")
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase()}
             </div>
+
             <div className="absolute bottom-1 right-1 size-8 rounded-full bg-primary flex items-center justify-center text-white border-4 border-white">
               <span className="material-symbols-outlined text-sm">edit</span>
             </div>
           </div>
-          <h1 className="text-2xl font-bold">Alex Rivers</h1>
-          <p className="text-slate-500 font-medium">Senior Account Executive</p>
+
+          <h1 className="text-2xl font-bold">{user.name || "User"}</h1>
+
+          <p className="text-slate-500 font-medium">
+            {user.role || "Sales Executive"}
+          </p>
+
+          <p className="text-sm text-slate-400 mt-1">{user.email}</p>
+
           <div className="mt-4 flex gap-2 w-full">
-            <button className="flex-1 h-11 bg-primary text-white rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors">
+            <Link
+              href="/profile/edit"
+              className="flex-1 h-11 bg-primary text-white rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors"
+            >
               <span className="material-symbols-outlined text-lg">
                 edit_note
               </span>
               Edit Profile
-            </button>
+            </Link>
+
             <button className="px-3 h-11 border border-slate-200 rounded-lg flex items-center justify-center hover:bg-slate-50">
               <span className="material-symbols-outlined text-slate-600">
                 share
@@ -93,11 +149,11 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        {/* Stats */}
         <section className="p-4">
           <h3 className="px-2 mb-4 text-sm font-bold uppercase tracking-wider text-slate-500">
             Performance Overview
           </h3>
+
           <div className="grid grid-cols-2 gap-4">
             {stats.map((s) => (
               <div
@@ -108,16 +164,21 @@ export default function ProfilePage() {
                   <span className="material-symbols-outlined text-primary bg-primary/10 p-2 rounded-lg">
                     {s.icon}
                   </span>
+
                   <span className="text-emerald-600 text-xs font-bold">
                     {s.trend}
                   </span>
                 </div>
-                <p className="text-slate-500 text-xs font-medium">{s.label}</p>
+
+                <p className="text-slate-500 text-xs font-medium">
+                  {s.label}
+                </p>
+
                 <p className="text-xl font-bold tracking-tight">{s.value}</p>
               </div>
             ))}
           </div>
-          {/* Quota Bar */}
+
           <div className="mt-6 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
             <div className="flex justify-between items-end mb-3">
               <div>
@@ -126,14 +187,17 @@ export default function ProfilePage() {
                 </p>
                 <p className="text-lg font-bold">Progress to Goal</p>
               </div>
+
               <p className="text-lg font-bold text-primary">85%</p>
             </div>
+
             <div className="w-full bg-slate-100 rounded-full h-3">
               <div
                 className="bg-primary h-3 rounded-full"
                 style={{ width: "85%" }}
-              ></div>
+              />
             </div>
+
             <p className="mt-3 text-sm text-slate-500">
               <span className="font-semibold text-slate-900">$850k</span> of
               $1.0M target reached.
@@ -141,33 +205,35 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        {/* Settings Menu */}
         <section className="p-4 space-y-2">
           <h3 className="px-2 mb-2 text-sm font-bold uppercase tracking-wider text-slate-500">
             Account Settings
           </h3>
+
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
             {menuItems.map((item, i) => (
-              <a
+              <Link
                 key={item.label}
-                className={`flex items-center p-4 hover:bg-slate-50 transition-colors ${
-                  i < menuItems.length - 1 ? "border-b border-slate-100" : ""
-                }`}
-                href="#"
+                href={item.href}
+                className={`flex items-center p-4 hover:bg-slate-50 transition-colors ${i < menuItems.length - 1 ? "border-b border-slate-100" : ""
+                  }`}
               >
                 <span className="material-symbols-outlined text-primary mr-4">
                   {item.icon}
                 </span>
+
                 <div className="flex-1">
                   <p className="font-semibold text-sm">{item.label}</p>
                   <p className="text-xs text-slate-500">{item.desc}</p>
                 </div>
+
                 <span className="material-symbols-outlined text-slate-400">
                   chevron_right
                 </span>
-              </a>
+              </Link>
             ))}
           </div>
+
           <div className="pt-4">
             <button
               onClick={handleLogout}
