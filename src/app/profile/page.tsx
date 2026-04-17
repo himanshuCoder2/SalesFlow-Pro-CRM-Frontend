@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 import MobileShell from "@/components/MobileShell";
 
 const stats = [
@@ -39,7 +38,7 @@ export default function ProfilePage() {
   const router = useRouter();
   //Handle lgout function to redirect -> login
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await fetch('/api/auth/logout', { method: 'POST' })
     router.push("/login");
   };
 

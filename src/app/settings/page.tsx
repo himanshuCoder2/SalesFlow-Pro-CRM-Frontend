@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import MobileShell from '@/components/MobileShell'
 
 function Toggle({ defaultOn = false }: { defaultOn?: boolean }) {
@@ -65,7 +64,7 @@ export default function SettingsPage() {
   const router = useRouter()
   //Handle Logout function for redirect -> Login
   const handleLogout = async () => {
-    await supabase.auth.signOut()
+    await fetch('/api/auth/logout', { method: 'POST' })
     router.push('/login')
   }
   return (
